@@ -35,6 +35,7 @@ function createRedshiftTable (callback) {
   CREATE TABLE ${dStreamName} (
     id INT,
     name VARCHAR(200),
+    created_date DATE,
     created_at TIMESTAMP
   );`
   console.log(sqlString)
@@ -66,11 +67,14 @@ function waitForDStreamToBecomeActive (callback) {
 
 function sendOneRecordToFirehose (callback) {
   console.log('sendOneRecordToFirehose')
+  const now = new Date().toISOString()
   const record = {
     id: 1,
     name: 'Daniel San',
-    created_at: (new Date()).toISOString().substr(0, 19).replace('T', ' ')
+    created_date: now.substr(0, 10),
+    created_at: now
   }
+
   console.log(record)
 
   myFirehose.putRecord(dStreamName, record, function (err, res) {
@@ -87,7 +91,7 @@ function queryRedshiftTableEvery1min () {
     if (err) throw new Error(err)
 
     console.log('rows', res.rows)
-    if (res.rows === 0) {
+    if (res.rows.length === 0) {
       return setTimeout(queryRedshiftTableEvery1min, 60000, dStreamName)
     }
 

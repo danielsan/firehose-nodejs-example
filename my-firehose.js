@@ -35,7 +35,7 @@ function createDeliveryStream (dStreamName, callback) {
       ClusterJDBCURL: REDSHIFT_JDBCURL, /* required */
       CopyCommand: { /* required */
         DataTableName: dStreamName, /* required */
-        CopyOptions: "FORMAT AS json 'auto' GZIP"
+        CopyOptions: "FORMAT AS json 'auto'  TIMEFORMAT 'YYYY-MM-DDTHH:MI:SS' DATEFORMAT 'YYYY-MM-DDTHH:MI:SS' GZIP"
         // DataTableColumns: 'STRING_VALUE'
       },
       Username: env('REDSHIFT_USER'), /* required */
