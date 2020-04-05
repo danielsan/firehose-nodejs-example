@@ -1,55 +1,60 @@
-'use strict';
+'use strict'
 
-const pg = require('pg');
-const redshift_conf = {
-  host:     process.env.REDSHIFT_HOST,
-  port:     process.env.REDSHIFT_PORT || 5439, // 5439 is the default redshift port
+// const client = require('pg')
+
+const redshiftConf = {
+  host: process.env.REDSHIFT_HOST,
+  port: process.env.REDSHIFT_PORT || 5439, // 5439 is the default redshift port
   database: process.env.REDSHIFT_DB,
-  user:     process.env.REDSHIFT_USER,
-  password: process.env.REDSHIFT_PASS,
-};
-
-function createTable(sql_string, callback) {
-  pg.connect(redshift_conf, function pg_connect(err, client, done) {
-    if(err) return callback(err);
-
-    client.query(sql_string, function createTableCallback(err, result) {
-      //call `done()` to release the client back to the pool
-      done();
-
-      // close the connection
-      client.end();
-
-      if(err) return callback(err);
-
-      callback(null, result);
-    });
-  });
+  user: process.env.REDSHIFT_USER,
+  password: process.env.REDSHIFT_PASS
 }
 
-function selectAllFrom(table_name, callback) {
-  const sql_string = "SELECT * FROM " + table_name + " LIMIT 10;";
-  console.log({sql_string});
+const getClient = () => new (require('pg').Client)(redshiftConf)
 
-  pg.connect(redshift_conf, function pg_connect(err, client, done) {
-    if(err) return callback(err);
+function createTable (sqlString, callback) {
+  // client.connect(redshiftConf, function pgConnect (err, client, done) {
+  const client = getClient()
+  client.connect(function pgConnect (err) {
+    if (err) return callback(err)
 
-    client.query(sql_string, function createTableCallback(err, result) {
-      //call `done()` to release the client back to the pool
-      done();
+    client.query(sqlString, function createTableCallback (err, result) {
+      // call `done()` to release the client back to the pool
+      // done()
 
       // close the connection
-      client.end();
+      client.end(endErr => {
+        console.log('closing connection')
+        if (err || endErr) return callback(err || endErr)
 
-      if(err) return callback(err);
+        callback(null, result)
+      })
+    })
+  })
+}
 
-      callback(null, result);
-    });
-  });
+function selectAllFrom (tableName, callback) {
+  const sqlString = 'SELECT * FROM ' + tableName + ' LIMIT 10;'
+  console.log({ sql_string: sqlString })
 
+  // pg.connect(redshift_conf, function pg_connect(err, client, done) {
+  const client = getClient()
+  client.connect(function pgConnect (err) {
+    if (err) return callback(err)
+
+    client.query(sqlString, function createTableCallback (err, result) {
+      // close the connection
+      client.end(endErr => {
+        console.log('closing connection')
+        if (err || endErr) return callback(err || endErr)
+
+        callback(null, result)
+      })
+    })
+  })
 }
 
 module.exports = {
-  createTable:   createTable,
-  selectAllFrom: selectAllFrom,
-};
+  createTable,
+  selectAllFrom
+}

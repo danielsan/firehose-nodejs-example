@@ -24,7 +24,7 @@
   "homepage": "https://github.com/danielsan/firehose-nodejs-example#readme",
   "dependencies": {
     "aws-sdk": "^2.2.41",
-    "dotenv": "^2.0.0",
-    "pg": "^4.5.1"
+    "dotenv": "^8.2.0",
+    "pg": "^8.0.0"
   }
 }
