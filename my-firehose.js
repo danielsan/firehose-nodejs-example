@@ -19,7 +19,7 @@ function createDeliveryStream (dStreamName, callback) {
         SizeInMBs: 128
       },
       // CompressionFormat: 'UNCOMPRESSED | GZIP | ZIP | Snappy',
-      CompressionFormat: 'UNCOMPRESSED',
+      CompressionFormat: 'GZIP',
       EncryptionConfiguration: {
         // KMSEncryptionConfig: {
         //   AWSKMSKeyARN: 'STRING_VALUE' /* required */
@@ -35,7 +35,7 @@ function createDeliveryStream (dStreamName, callback) {
       ClusterJDBCURL: REDSHIFT_JDBCURL, /* required */
       CopyCommand: { /* required */
         DataTableName: dStreamName, /* required */
-        CopyOptions: "FORMAT AS json 'auto'"
+        CopyOptions: "FORMAT AS json 'auto' GZIP"
         // DataTableColumns: 'STRING_VALUE'
       },
       Username: env('REDSHIFT_USER'), /* required */
